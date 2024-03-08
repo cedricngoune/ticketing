@@ -4,16 +4,24 @@ manifests:
   rawYaml:
     - ./infra/k8s/*
 build:
-  #local:
-  # push: false
-  googleCloudBuild:
-    projectId: ticketing-dev-415915
+  local:
+    push: false
+  # googleCloudBuild:
+  #   projectId: ticketing-dev-415915
   artifacts:
-    - image: us.gcr.io/ticketing-dev-415915/auth
+    - image: dockdollars/auth
       context: auth
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
           - src: "src/**/*.ts"
+            dest: .
+    - image: dockdollars/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**/*.js"
             dest: .
