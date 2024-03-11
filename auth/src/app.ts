@@ -1,14 +1,12 @@
 import express from "express";
 import "express-async-errors";
 import bodyParser, { json } from "body-parser";
-
+import { errorHandler, NotFoundError } from "@gotickets/common";
 import cookieSession from "cookie-session";
 import { currentUserRouter } from "./routes/current-user";
 import { registerRouter } from "./routes/register";
 import { loginRouter } from "./routes/login";
 import { logoutRouter } from "./routes/logout";
-import { errorHandler } from "./middlewares/error-handler";
-import { NotFoundError } from "./errors/not-found";
 
 const app = express();
 app.set("trust proxy", true);
