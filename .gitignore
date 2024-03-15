@@ -1,2 +1,4 @@
 node_modules
 .gitmodules
+build
+/.next/
