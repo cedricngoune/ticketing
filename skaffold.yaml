@@ -33,3 +33,19 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+    - image: dockdollars/expiration
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - dest: .
+            src: "src/**/*.ts"
+    - image: dockdollars/orders
+      context: orders
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.ts"
+            dest: .

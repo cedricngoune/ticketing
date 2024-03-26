@@ -1,7 +1,9 @@
-import mongoConnect from "./db/mongo-connect";
-
 import { app } from "./app";
 import { natsWrapper } from "./nats-wrapper";
+import { TicketCreatedListener } from "./events/listeners/ticket-created-listener";
+import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listener";
+import mongoose from "mongoose";
+
 const port = 3000;
 
 const start = async () => {
@@ -28,7 +30,21 @@ const start = async () => {
   process.on("SIGINT", () => natsWrapper.client.close());
   process.on("SIGTERM", () => natsWrapper.client.close());
 
-  await mongoConnect;
+  new TicketCreatedListener(natsWrapper.client).listen();
+  new TicketUpdatedListener(natsWrapper.client).listen();
+
+  if (!process.env.JWT_KEY) {
+    throw new Error("Missing JWT_KEY value");
+  }
+  if (!process.env.MONGO_URI) {
+    throw new Error("Missing MONGO_URI value");
+  }
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connected to db");
+  } catch (e) {
+    console.log(e);
+  }
   app.listen(port, () => {
     console.log(`Server running at ${port} 🚀`);
   });
