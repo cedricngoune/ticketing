@@ -1,10 +1,8 @@
 import { app } from "./app";
 import { natsWrapper } from "./nats-wrapper";
-import { TicketCreatedListener } from "./events/listeners/ticket-created-listener";
-import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listener";
 import mongoose from "mongoose";
-import { ExpirationCompleteListener } from "./events/listeners/expiration-complete-listener";
-import { PaymentCreatedListener } from "./events/listeners/payment-created-listener";
+import { OrderCancelledListener } from "./events/listeners/order-cancelled-listener";
+import { OrderCreatedListener } from "./events/listeners/order-created-listener";
 
 const start = async () => {
   const port = 3000;
@@ -23,7 +21,6 @@ const start = async () => {
   if (!process.env.MONGO_URI) {
     throw new Error("Missing MONGO_URI value");
   }
-
   try {
     await natsWrapper.connect(
       process.env.NATS_CLUSTER_ID,
@@ -31,6 +28,9 @@ const start = async () => {
       process.env.NATS_URL
     );
 
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connected to db");
+    // Close connection to NATS
     natsWrapper.client.on("close", () => {
       console.log("Nats connection closed");
       process.exit();
@@ -38,13 +38,8 @@ const start = async () => {
     process.on("SIGINT", () => natsWrapper.client.close());
     process.on("SIGTERM", () => natsWrapper.client.close());
 
-    new TicketCreatedListener(natsWrapper.client).listen();
-    new TicketUpdatedListener(natsWrapper.client).listen();
-    new ExpirationCompleteListener(natsWrapper.client).listen();
-    new PaymentCreatedListener(natsWrapper.client).listen();
-
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to db");
+    new OrderCreatedListener(natsWrapper.client).listen();
+    new OrderCancelledListener(natsWrapper.client).listen();
   } catch (err) {
     console.error(err);
   }
