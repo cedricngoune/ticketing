@@ -8,6 +8,7 @@ import { PaymentCreatedListener } from "./events/listeners/payment-created-liste
 
 const start = async () => {
   const port = 3000;
+  console.log("Starting..");
   if (!process.env.NATS_CLIENT_ID) {
     throw new Error("NATS_CLIENT_ID must be defined");
   }
