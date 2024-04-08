@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const port = 3000;
 
 const start = async () => {
+  console.log("starting up..");
   if (!process.env.JWT_KEY) {
     throw new Error("Missing JWT_KEY value");
   }
